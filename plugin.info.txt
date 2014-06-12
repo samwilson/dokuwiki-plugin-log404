@@ -4,4 +4,4 @@ email  sam@samwilson.id.au
 date   2014-06-12
 name   log404 plugin
 desc   Keep a log of page IDs that have not been found.
-url    http://dokuwiki.org/plugin:404log
+url    https://dokuwiki.org/plugin:404log
