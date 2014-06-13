@@ -15,6 +15,13 @@ if (!defined('DOKU_INC')) die();
 class admin_plugin_log404 extends DokuWiki_Admin_Plugin {
 
     public function handle() {
+        global $ID;
+        if (isset($_GET['delete'])) {
+            $log = $this->loadHelper('log404');
+            $log->deleteRecord($_GET['delete']);
+            msg("Records for ".$_GET['delete']." have been removed from the 404 log.");
+            send_redirect(wl($ID, array('do'=>'admin', 'page'=>$this->getPluginName()), TRUE, '&'));
+        }
     }
 
     public function html() {
@@ -32,18 +39,18 @@ class admin_plugin_log404 extends DokuWiki_Admin_Plugin {
         global $ID;
         $delUrl = wl($ID, array('do'=>'admin', 'page'=>$this->getPluginName(), 'delete'=>$id));
         $title = '<strong class="title">'.$data['count'].' <code>'.$id.'</code></strong> '
-               . '<a href="'.wl($id).'">[Go to page]</a>'
-               . '<a href="'.$delUrl.'">[Delete '.$data['count'].' log entries]</a>'
-               . '<a href="'.$delUrl.'">[Add to <em>ignore list</em>]</a>'
+               . ' <a href="'.wl($id).'">[Go to page]</a>'
+               . ' <a href="'.$delUrl.'">[Delete '.$data['count'].' log entries]</a>'
+               . ' <a href="'.$delUrl.'">[Add to <em>ignore list</em>]</a>'
                . '</span>';
         $out = $title.'<ol>';
         foreach ($data['hits'] as $hit) {
             $line = $hit['date'];
             if (!empty($hit['referer'])) {
-                $line .= ' Referer: <a href="'.$hit['referer'].'">'.$hit['referer'].'</a>';
+                $line .= ' <em>Referer:</em> <a href="'.$hit['referer'].'">'.$hit['referer'].'</a>';
             }
             if (!empty($hit['user_agent'])) {
-                $line .= ' User Agent: '.$hit['user_agent'];
+                $line .= ' <em>User Agent:</em> '.$hit['user_agent'];
             }
             $out .= "<li>$line</li>";
         }

@@ -71,7 +71,7 @@ class general_plugin_log404_test extends DokuWikiTest {
     public function test_ordering() {
         $log = plugin_load('helper', 'log404');
         // Reset the log
-        unlink($log->filename());
+        @unlink($log->filename());
 
         // Hit page A twice, then page B once, and page A will be first
         $request1 = new TestRequest();
@@ -93,4 +93,78 @@ class general_plugin_log404_test extends DokuWikiTest {
         $newFirstRecord = array_keys($log->getRecords());
         $this->assertEquals('b', array_shift($newFirstRecord));
     }
+
+    /**
+     * Test that we can delete log entries, based on their page ID.
+     */
+    public function test_delete() {
+        $log = plugin_load('helper', 'log404');
+        // Reset the log
+        @unlink($log->filename());
+        // Create two requests for page A, then one for B
+        $request1 = new TestRequest();
+        $request1->get(array('id' => 'a'));
+        $request2 = new TestRequest();
+        $request2->get(array('id' => 'a'));
+        $request3 = new TestRequest();
+        $request3->get(array('id' => 'b'));
+        // Then delete page A from the log
+        $log->deleteRecord('a');
+        // And check that it's not there, and that B is
+        $this->assertFalse($log->getRecord('a'));
+        $b = $log->getRecord('b');
+        $this->assertEquals(1, $b['count']);
+    }
+
+    /**
+     * Test that when deleting, multiple hits of non-deleted pages do remain.
+     */
+    public function test_delete_hits() {
+        $log = plugin_load('helper', 'log404');
+        // Reset the log
+        @unlink($log->filename());
+        // Create two requests for page A, then one for B, one for A, one for B.
+        $request1 = new TestRequest();
+        $request1->get(array('id' => 'a'));
+        $request2 = new TestRequest();
+        $request2->get(array('id' => 'a'));
+        $request3 = new TestRequest();
+        $request3->get(array('id' => 'b'));
+        $request4 = new TestRequest();
+        $request4->get(array('id' => 'a'));
+        $request5 = new TestRequest();
+        $request5->get(array('id' => 'b'));
+        // Then delete page B from the log
+        $log->deleteRecord('b');
+        // And check that it's not there, and that A still has 3 hits
+        $this->assertFalse($log->getRecord('b'));
+        $a = $log->getRecord('a');
+        $this->assertEquals(3, $a['count']);
+    }
+
+    /**
+     * Test that deleting a record doesn't break other data in the log
+     */
+    public function test_delete_leaves_data() {
+        $log = plugin_load('helper', 'log404');
+        // Reset the log
+        @unlink($log->filename());
+
+        // Request a page, providing data
+        $request1 = new TestRequest();
+        $request1->setServer('HTTP_REFERER', 'Wherefrom');
+        $request1->setServer('HTTP_USER_AGENT', 'An agent');
+        $request1->get(array('id' => 'page-that-does-not-exist'));
+        // Request and then delete another page
+        $request2 = new TestRequest();
+        $request2->get(array('id' => 'a'));
+        $log->deleteRecord('a');
+
+        // Check that our data remains
+        $log->load();
+        $a = $log->getRecord('page-that-does-not-exist');
+        $this->assertEquals('Wherefrom', $a['hits'][0]['referer']);
+        $this->assertEquals('An agent', $a['hits'][0]['user_agent']);
+    }
+
 }

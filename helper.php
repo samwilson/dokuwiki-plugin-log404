@@ -47,6 +47,7 @@ class helper_plugin_log404 extends DokuWiki_Plugin {
                 'user_agent' => $line[3],
             );
         }
+        fclose($log);
         uasort($this->data, array($this, 'compareCounts'));
     }
 
@@ -67,6 +68,29 @@ class helper_plugin_log404 extends DokuWiki_Plugin {
 
     public function getRecord($id) {
         return (isset($this->data[$id])) ? $this->data[$id] : false;
+    }
+
+    public function deleteRecord($id) {
+        $tmpFilename = $this->filename().'.temp';
+        $logTemp = fopen($tmpFilename, 'w');
+        $this->load();
+        foreach ($this->getRecords() as $rid=>$rinfo) {
+            if ($rid != $id) {
+                foreach ($rinfo['hits'] as $hit) {
+                    $line = array(
+                        $hit['date'],
+                        $rid,
+                        $hit['referer'],
+                        $hit['user_agent'],
+                    );
+                    fputcsv($logTemp, $line);
+                }
+            }
+        }
+        fclose($logTemp);
+        unlink($this->filename());
+        rename($tmpFilename, $this->filename());
+        $this->load();
     }
 
     public function filename() {
