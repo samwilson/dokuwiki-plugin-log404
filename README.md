@@ -3,9 +3,9 @@
 Keep a log of page IDs that have not been found.
 
 All documentation for this plugin can be found at
-http://dokuwiki.org/plugin:log404
+https://dokuwiki.org/plugin:log404
 
-Please refer to http://www.dokuwiki.org/plugins for additional info
+Please refer to https://www.dokuwiki.org/plugins for additional info
 on how to install plugins in DokuWiki.
 
 [![Build Status](https://travis-ci.org/samwilson/dokuwiki-plugin-log404.svg)](https://travis-ci.org/samwilson/dokuwiki-plugin-log404)
