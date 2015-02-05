@@ -38,10 +38,11 @@ class admin_plugin_log404 extends DokuWiki_Admin_Plugin {
     protected function getHtml($id, $data) {
         global $ID;
         $delUrl = wl($ID, array('do'=>'admin', 'page'=>$this->getPluginName(), 'delete'=>$id));
+        $ignoreUrl = wl($ID, array('do'=>'admin', 'page'=>$this->getPluginName(), 'ignore'=>$id));
         $title = '<strong class="title">'.$data['count'].' <code>'.$id.'</code></strong> '
                . ' <a href="'.wl($id).'">[Go to page]</a>'
                . ' <a href="'.$delUrl.'">[Delete '.$data['count'].' log entries]</a>'
-               . ' <a href="'.$delUrl.'">[Add to <em>ignore list</em>]</a>'
+               . ' <a href="'.$ignoreUrl.'">[Add to <em>ignore list</em>]</a>'
                . '</span>';
         $out = $title.'<ol>';
         foreach ($data['hits'] as $hit) {
@@ -52,7 +53,10 @@ class admin_plugin_log404 extends DokuWiki_Admin_Plugin {
             if (!empty($hit['user_agent'])) {
                 $line .= ' <em>User Agent:</em> '.$hit['user_agent'];
             }
-            $out .= "<li>$line</li>";
+            // The line should never actually be empty, but still...
+            if (!empty($line)) {
+                $out .= "<li>$line</li>";
+            }
         }
         $out .= '</ol>';
         return "<li>$out</li>";
