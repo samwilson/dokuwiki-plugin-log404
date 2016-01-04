@@ -1,7 +1,7 @@
 base   log404
 author Sam Wilson
 email  sam@samwilson.id.au
-date   2015-02-05
+date   2016-01-05
 name   log404 plugin
 desc   Keep a log of page IDs that have not been found.
 url    https://dokuwiki.org/plugin:log404

@@ -167,4 +167,24 @@ class general_plugin_log404_test extends DokuWikiTest {
         $this->assertEquals('An agent', $a['hits'][0]['user_agent']);
     }
 
+    /**
+     * Test that, if provided, an IP address is logged.
+     * @link https://github.com/samwilson/dokuwiki-plugin-log404/issues/1
+     */
+    public function test_ip_address() {
+        $log = plugin_load('helper', 'log404');
+        // Reset the log
+        @unlink($log->filename());
+
+        // Request a page.
+        $request1 = new TestRequest();
+        //$request1->setServer('HTTP_USER_AGENT', '198.51.100.35');
+        $request1->get(array('id' => 'page-that-does-not-exist'));
+
+        // Check the log. This IP is set in _test/bootstrap.php
+        $log->load();
+        $a = $log->getRecord('page-that-does-not-exist');
+        $this->assertEquals('87.142.120.6', $a['hits'][0]['ip']);
+    }
+
 }

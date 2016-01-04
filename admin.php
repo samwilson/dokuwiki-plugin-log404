@@ -10,7 +10,7 @@
 if (!defined('DOKU_INC')) die();
 
 /**
- * 
+ * The admin class handles the display and user-manipulation of the 404 log.
  */
 class admin_plugin_log404 extends DokuWiki_Admin_Plugin {
 
@@ -20,7 +20,7 @@ class admin_plugin_log404 extends DokuWiki_Admin_Plugin {
             $log = $this->loadHelper('log404');
             $log->deleteRecord($_GET['delete']);
             msg("Records for ".$_GET['delete']." have been removed from the 404 log.");
-            send_redirect(wl($ID, array('do'=>'admin', 'page'=>$this->getPluginName()), TRUE, '&'));
+            send_redirect(wl($ID, array('do'=>'admin', 'page'=>$this->getPluginName()), true, '&'));
         }
     }
 
@@ -47,6 +47,9 @@ class admin_plugin_log404 extends DokuWiki_Admin_Plugin {
         $out = $title.'<ol>';
         foreach ($data['hits'] as $hit) {
             $line = $hit['date'];
+            if (!empty($hit['ip'])) {
+                $line .= ' <em>IP:</em> '.$hit['ip'];
+            }
             if (!empty($hit['referer'])) {
                 $line .= ' <em>Referer:</em> <a href="'.$hit['referer'].'">'.$hit['referer'].'</a>';
             }

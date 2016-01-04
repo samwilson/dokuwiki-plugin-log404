@@ -12,7 +12,7 @@ on how to install plugins in DokuWiki.
 
 ----
 
-Copyright © Sam Wilson <sam@samwilson.id.au> 2014–2015.
+Copyright © Sam Wilson <sam@samwilson.id.au> 2014–2016.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of version 3 of the GNU General Public License as

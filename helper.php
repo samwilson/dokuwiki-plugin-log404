@@ -33,7 +33,7 @@ class helper_plugin_log404 extends DokuWiki_Plugin {
             return;
         }
         $log = fopen($this->filename(), 'r');
-        while ($line = fgetcsv($log, 800)) { // Is 800 okay for max line length?
+        while ($line = fgetcsv($log, 900)) { // Is 900 okay for max line length?
             if (!isset($this->data[$line[1]])) {
                 $this->data[$line[1]] = array(
                     'count' => 0,
@@ -41,11 +41,25 @@ class helper_plugin_log404 extends DokuWiki_Plugin {
                 );
             }
             $this->data[$line[1]]['count'] ++;
-            $this->data[$line[1]]['hits'][] = array(
-                'date' => $line[0],
-                'referer' => $line[2],
-                'user_agent' => $line[3],
-            );
+            if (count($line) === 4) {
+                // Prior to the inclusion of the IP address there were 4 items
+                // in this order: date, page ID, referer, and user agent.
+                $this->data[$line[1]]['hits'][] = array(
+                    'date' => $line[0],
+                    'ip' => '',
+                    'referer' => $line[2],
+                    'user_agent' => $line[3],
+                );
+            } else {
+                // After the inclusion there were 5:
+                // date, page ID, IP address, referer, and user agent.
+                $this->data[$line[1]]['hits'][] = array(
+                    'date' => $line[0],
+                    'ip' => $line[2],
+                    'referer' => $line[3],
+                    'user_agent' => $line[4],
+                );
+            }
         }
         fclose($log);
         uasort($this->data, array($this, 'compareCounts'));
@@ -54,9 +68,10 @@ class helper_plugin_log404 extends DokuWiki_Plugin {
     public function save($id) {
         $datetime = date('Y-m-d H:i:s');
         $page = cleanID($id);
+        $ipAddress = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
         $referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
         $agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
-        $logline = $datetime.','.$page.',"'.$referer.'","'.$agent.'"'.PHP_EOL;
+        $logline = $datetime.','.$page.','.$ipAddress.',"'.$referer.'","'.$agent.'"'.PHP_EOL;
         if (!io_saveFile($this->filename(), $logline, true)) {
             msg("Unable to write log404 file.");
         }
