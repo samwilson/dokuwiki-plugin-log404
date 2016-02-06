@@ -95,6 +95,7 @@ class helper_plugin_log404 extends DokuWiki_Plugin {
                     $line = array(
                         $hit['date'],
                         $rid,
+                        $hit['ip'],
                         $hit['referer'],
                         $hit['user_agent'],
                     );

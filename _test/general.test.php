@@ -44,6 +44,7 @@ class general_plugin_log404_test extends DokuWikiTest {
 
         // Execute a GET request
         $request1 = new TestRequest();
+        $request1->setServer('REMOTE_ADDR', '192.0.2.45'); // c.f. RFC 5737
         $request1->setServer('HTTP_USER_AGENT', 'An agent');
         $request1->get(array('id' => 'page-that-does-not-exist'));
 
@@ -55,6 +56,7 @@ class general_plugin_log404_test extends DokuWikiTest {
         $record1 = $log->getRecord('page-that-does-not-exist');
         $this->assertEquals(1, $record1['count']);
         $this->assertEquals('An agent', $record1['hits'][0]['user_agent']);
+        $this->assertEquals('192.0.2.45', $record1['hits'][0]['ip']);
 
         // Hit the same file again, and increment the count
         $request2 = new TestRequest();
@@ -152,6 +154,7 @@ class general_plugin_log404_test extends DokuWikiTest {
 
         // Request a page, providing data
         $request1 = new TestRequest();
+        $request1->setServer('REMOTE_ADDR', '192.0.2.45'); // c.f. RFC 5737
         $request1->setServer('HTTP_REFERER', 'Wherefrom');
         $request1->setServer('HTTP_USER_AGENT', 'An agent');
         $request1->get(array('id' => 'page-that-does-not-exist'));
@@ -163,6 +166,7 @@ class general_plugin_log404_test extends DokuWikiTest {
         // Check that our data remains
         $log->load();
         $a = $log->getRecord('page-that-does-not-exist');
+        $this->assertEquals('192.0.2.45', $a['hits'][0]['ip']);
         $this->assertEquals('Wherefrom', $a['hits'][0]['referer']);
         $this->assertEquals('An agent', $a['hits'][0]['user_agent']);
     }
