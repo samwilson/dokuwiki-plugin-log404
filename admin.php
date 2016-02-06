@@ -19,7 +19,7 @@ class admin_plugin_log404 extends DokuWiki_Admin_Plugin {
         if (isset($_GET['delete'])) {
             $log = $this->loadHelper('log404');
             $log->deleteRecord($_GET['delete']);
-            msg("Records for ".$_GET['delete']." have been removed from the 404 log.");
+            msg(sprintf($this->getLang('deleted'), $_GET['delete']));
             send_redirect(wl($ID, array('do'=>'admin', 'page'=>$this->getPluginName()), true, '&'));
         }
     }
@@ -40,21 +40,21 @@ class admin_plugin_log404 extends DokuWiki_Admin_Plugin {
         $delUrl = wl($ID, array('do'=>'admin', 'page'=>$this->getPluginName(), 'delete'=>$id));
         $ignoreUrl = wl($ID, array('do'=>'admin', 'page'=>$this->getPluginName(), 'ignore'=>$id));
         $title = '<strong class="title">'.$data['count'].' <code>'.$id.'</code></strong> '
-               . ' <a href="'.wl($id).'">[Go to page]</a>'
-               . ' <a href="'.$delUrl.'">[Delete '.$data['count'].' log entries]</a>'
-               . ' <a href="'.$ignoreUrl.'">[Add to <em>ignore list</em>]</a>'
+               . ' <a href="'.wl($id).'">'.$this->getLang('go-to-page').'</a>'
+               . ' <a href="'.$delUrl.'">'.sprintf($this->getLang('delete'), $data['count']).'</a>'
+               . ' <a href="'.$ignoreUrl.'">'.$this->getLang('ignore').'</a>'
                . '</span>';
         $out = $title.'<ol>';
         foreach ($data['hits'] as $hit) {
             $line = $hit['date'];
             if (!empty($hit['ip'])) {
-                $line .= ' <em>IP:</em> '.$hit['ip'];
+                $line .= ' <em>'.$this->getLang('ip').'</em> '.$hit['ip'];
             }
             if (!empty($hit['referer'])) {
-                $line .= ' <em>Referer:</em> <a href="'.$hit['referer'].'">'.$hit['referer'].'</a>';
+                $line .= ' <em>'.$this->getLang('referer').'</em> <a href="'.$hit['referer'].'">'.$hit['referer'].'</a>';
             }
             if (!empty($hit['user_agent'])) {
-                $line .= ' <em>User Agent:</em> '.$hit['user_agent'];
+                $line .= ' <em>'.$this->getLang('user-agent').'</em> '.$hit['user_agent'];
             }
             // The line should never actually be empty, but still...
             if (!empty($line)) {
